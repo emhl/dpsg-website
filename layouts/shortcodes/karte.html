@@ -1,0 +1,151 @@
+{{- $lat := .Get "lat" | default (.Get 0) | float -}}
+{{- $lon := .Get "lon" | default (.Get 1) | float -}}
+
+{{ $width := .Get "width" | default (.Get 2) | default 600 }}
+{{ $height := .Get "height" | default (.Get 3) | default 450 }}
+
+{{- $highlightColor := .Site.Params.style.vars.highlightColor | default (.Site.Params.highlightColor | default "#e22d30") -}}
+{{- $accentColor := .Site.Params.style.vars.accentColor | default (.Site.Params.accentColor | default "#810a1a") -}}
+
+<div id="karte">
+
+    <div id="cookie-notice">
+        <span>Wir würden gerne hier gerne Karten von OpenStreetMaps einbinden</span>
+        <br>
+        <a id="cookie-notice-accept" href="#karte" class="btn btn-primary btn-sm">Akzeptieren</a>
+        <a id="cookie-notice-deny" href="#karte" class="btn btn-primary btn-sm">Ablehnen</a>
+        <a href="/impressum/#openstreetmap" class="btn btn-primary btn-sm">Mehr infos</a>
+    </div>
+
+    <div id="karte-content">
+        <p>Bitte aktivieren Sie Cookies und bestätigen sie das einbinden von externen Inhalten, um die Karte zu sehen.</p>
+    </div>
+
+</div>
+<br>
+<small>
+  <a href="https://www.openstreetmap.org/?mlat={{ $lat }}&mlon={{ $lon }}#map=17/{{ $lat }}/{{ $lon }}">
+    Größere Karte anzeigen
+  </a>
+</small>
+
+
+
+
+<style>
+    #cookie-notice {
+        background-color: {{$highlightColor}};
+        color: white;
+        padding: 1px;
+        padding: 0.5rem;
+        display: none;
+    }
+    #cookie-notice a {
+        color: white;
+        margin-left: 10px;
+        margin-left: 0.5rem;
+        
+    }
+    #karte {
+        border: 3px solid {{$highlightColor}};
+        border: 0.2rem solid {{$highlightColor}};
+        border-radius: 5px;
+        border-radius: 0.3rem;
+        width: {{$width}}px;
+        max-width: 100%;
+        height: {{$height | add 7 }}px;
+    }
+
+    /* style a tag with btn class */
+    #cookie-notice a.btn {
+        background-color: {{$accentColor}};
+        border-radius: 5px;
+        border-radius: 0.3rem;
+        padding: 0.3rem;
+        margin: 0.3rem;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+        
+
+    #karte-content {
+        text-align: center;
+    }
+</style>
+
+<script>
+    function createCookie(name,value,days) {
+        var expires = "";
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days*24*60*60*1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+    function readCookie(name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+    }
+    function eraseCookie(name) {
+        createCookie(name,"",-1);
+    }
+
+    if(readCookie('osm-consent')=='true') {
+        
+        function loadScriptAsync(scriptSrc, callback) {
+            if (typeof callback !== 'function') {
+                throw new Error('Not a valid callback for async script load');
+            }
+            var script = document.createElement('script');
+            script.onload = callback;
+            script.src = scriptSrc;
+            document.head.appendChild(script);
+        }
+
+        // replace div with id="karte" with iframe
+        var div = document.getElementById('karte-content');
+        var iframe = document.createElement('iframe');
+        iframe.width = "{{$width}}";
+        iframe.height = "{{$height}}";
+        iframe.title = "Karte";
+        iframe.frameborder = "0";
+        iframe.scrolling = "no";
+        iframe.marginheight = "0";
+        iframe.marginwidth = "0";
+        iframe.src = "https://www.openstreetmap.org/export/embed.html?bbox={{ $lon | add -0.005}},{{ $lat | add -0.005 }},{{ $lon | add 0.005}},{{ $lat | add 0.005 }}&layer=mapnik&marker={{ $lat }},{{ $lon}}";
+        iframe.style = "border: 0px";
+        div.parentNode.replaceChild(iframe, div);
+
+
+    } else if (readCookie('osm-consent')!='false'){
+        document.getElementById('cookie-notice').style.display = 'block';
+    }
+
+    document.getElementById('cookie-notice-accept').addEventListener("click",function() {
+        createCookie('osm-consent','true',31);
+        document.getElementById('cookie-notice').style.display = 'none';
+        location.reload();
+    });
+
+    document.getElementById('cookie-notice-deny').addEventListener("click",function() {
+        createCookie('osm-consent','false',31);
+        document.getElementById('cookie-notice').style.display = 'none';
+        location.reload();
+    });
+
+</script>
+
+
+

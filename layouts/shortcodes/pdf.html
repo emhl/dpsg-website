@@ -1,0 +1,9 @@
+<!-- https://tinytip.co/tips/html-pdf-params/ -->
+{{ $pdf_url := .Get "src" }}
+<object
+    data="{{ $pdf_url }}"
+    {{- with .Get "width" | default "100%" }} width="{{ . }}"{{ end -}}
+    {{- with .Get "height" | default "100%" }} height="{{ . }}"{{ end -}}
+    type="application/pdf" >
+    <iframe loading="lazy" src="{{ $pdf_url }}"></iframe>
+</object>

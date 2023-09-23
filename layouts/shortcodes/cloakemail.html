@@ -1,0 +1,22 @@
+{{/* Get address, protocol and other parameters */}}
+{{- $address := .Get "address" | default (.Get 0) -}}
+{{- $protocol := .Get "protocol" | default "mailto" -}}
+{{- $class := .Get "class" -}}
+{{- $displaytext := .Get "display" | default (.Get 1) -}}
+{{- $query := .Get "query" | default "" -}}
+{{/* Compute md5 fingerprint */}}
+{{- $fingerprint := md5 (print $address $protocol (index (seq 999 | shuffle) 0)) | truncate 8 "" -}}
+<a class="cloaked-e-mail{{ with $class }} {{ $class }}{{end}}" id="cloak-{{ $fingerprint }}"></a>
+{{/* Alter display with Javascript by changing DOM */}}
+<script id="script-{{ $fingerprint }}">
+    var scriptTag = document.getElementById("cloak-{{ $fingerprint }}");
+    var address = decodeURIComponent(escape(atob('{{ $address | base64Encode }}'))) {{ with $query }} + '?' + decodeURIComponent(escape(atob('{{ $query | base64Encode }}'))){{ end }}; 
+    {{ with $displaytext }}
+    var text = decodeURIComponent(escape(atob('{{ $displaytext | base64Encode }}')));
+    {{ else }}
+    var text = address.split('?')[0];
+    {{ end }}
+    scriptTag.href = {{ $protocol }} + ":" + address;
+    scriptTag.innerText = text;
+</script>
+{{/* The end */}}

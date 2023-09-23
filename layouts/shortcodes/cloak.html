@@ -1,0 +1,24 @@
+{{- $text := .Get "text" | default (.Get 0) -}}
+{{- $link := .Get "link" | default (.Get 1) -}}
+
+{{- if $text -}}
+    {{ $fingerprint := md5 (print $link $text (index (seq 999 | shuffle) 0)) | truncate 8 "" }}
+    {{ if $link }}
+        <a href="" class="cloak" id="cloak-{{ $fingerprint }}"></a>
+        <script>
+            document.getElementById('cloak-{{ $fingerprint }}').href = decodeURIComponent(escape(atob('{{ $link | base64Encode }}')));
+            document.getElementById('cloak-{{ $fingerprint }}').innerHTML = decodeURIComponent(escape(atob('{{ $text | base64Encode }}')));
+        </script>
+    {{ else }}
+        <span class="cloak" id="cloak-{{ $fingerprint }}"></span>
+        <script>
+            document.getElementById('cloak-{{ $fingerprint }}').innerHTML = decodeURIComponent(escape(atob('{{ $text | base64Encode }}')));
+        </script>
+    {{ end }}
+{{- else -}}
+    {{ $fingerprint := md5 (print .Inner (index (seq 999 | shuffle) 0)) | truncate 8 "" }}
+    <span class="cloak" id="cloak-{{ $fingerprint }}"></span>
+    <script>
+        document.getElementById('cloak-{{ $fingerprint }}').innerHTML = decodeURIComponent(escape(atob('{{ .Inner | base64Encode }}')));
+    </script>
+{{- end -}}
