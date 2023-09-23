@@ -9,7 +9,7 @@
 
 ```bash
 git clone  https://github.com/emhl/dpsg-website.git
-cd bezirk-website
+cd dpsg-website
 git submodule update  --init
 hugo serve
 ```
